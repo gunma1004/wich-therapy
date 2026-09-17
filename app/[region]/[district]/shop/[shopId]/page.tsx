@@ -250,7 +250,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const serviceTypesPool = getServiceTypesPool();
   const descriptionsPool = getDescriptionsPool();
 
-  const seedString = locationPrefix + shop.name + shopId + "chulsang_massage_massive_seo";
+  const seedString = locationPrefix + shop.name + shopId + "chulsang_massage_clean_title";
   const charSum = seedString.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   
   const modIndex = charSum % modifiersPool.length;
@@ -261,8 +261,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const selectedService = serviceTypesPool[serviceIndex];
   const selectedDesc = descriptionsPool[descIndex];
 
-  // 🌟 '출장'과 '마사지'가 모두 들어가되 직접 붙지 않고 분산되도록 구성한 메타 태그
-  const formattedTitle = `${locationPrefix} ${selectedModifier} 제휴점의 ${selectedService} - ${shop.name} | 위치 테라피`;
+  // 🌟 뒤에 붙던 shop.name 및 브랜드명 수식어를 완전히 제거하고 조합된 타이틀만 노출
+  const formattedTitle = `${locationPrefix} ${selectedModifier} 제휴점의 ${selectedService}`;
   const formattedDesc = `${locationPrefix} 지역 맞춤형 힐링 네트워크. ${selectedModifier} 진행되는 ${selectedService}. ${selectedDesc} (${shop.name})`;
 
   return {
