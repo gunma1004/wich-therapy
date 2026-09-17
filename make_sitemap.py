@@ -33,7 +33,7 @@ def generate_sitemap():
             "changefreq": "weekly"
         })
 
-    # 4. 수도권 주요 구·시 및 세부 동 전체 계층 데이터
+    # 4. 수도권 주요 구·시 및 세부 동 전체 계층 데이터 (실제 한글 주소 체계 반영)
     region_hierarchy = {
         "seoul": {
             "종로구": ["효자동", "사직동", "삼청동", "부암동", "평창동", "무악동", "교남동", "가회동", "혜화동"],
@@ -70,6 +70,8 @@ def generate_sitemap():
             "성남시 수정구": ["신흥1동", "태평1동"],
             "성남시 중원구": ["성남동", "중앙동"],
             "성남시 분당구": ["분당동", "수내1동", "정자동", "서현1동"],
+            "안산시 상록구": ["본오1동", "사동", "일동"], # 🌟 안산시 상록구 완벽 반영
+            "안산시 단원구": ["고잔동", "원곡동", "초지동"], # 🌟 안산시 단원구 완벽 반영
             "고양시 덕양구": ["원신동", "흥도동"],
             "고양시 일산동구": ["식사동", "백석1동", "정발산동"],
             "고양시 일산서구": ["일산1동", "탄현동"],
@@ -88,19 +90,19 @@ def generate_sitemap():
         }
     }
 
-    # 5. 계층 구조 순회하며 기본 지역, 샵, 동, 동 하위 샵 및 /healing 페이지 일괄 생성
+    # 5. 계층 구조 순회하며 URL 생성 (urllib.parse.quote로 한글 주소 인코딩 자동 처리)
     for region, districts in region_hierarchy.items():
         for district, dongs in districts.items():
             encoded_district = urllib.parse.quote(district)
 
-            # 5-1. 기본 구/시 단위 페이지
+            # 5-1. 구/시 단위 페이지
             url_entries.append({
                 "loc": f"{base_url}/{region}/{encoded_district}",
                 "priority": "0.9",
                 "changefreq": "daily"
             })
 
-            # 5-2. 기본 구 단위 하위 샵 상세 페이지 (/shop/1 ~ 5)
+            # 5-2. 구 단위 하위 샵 상세 페이지 (/shop/1 ~ 5)
             for s_id in shop_ids:
                 url_entries.append({
                     "loc": f"{base_url}/{region}/{encoded_district}/shop/{s_id}",
@@ -148,13 +150,13 @@ def generate_sitemap():
 
     xml_content.append("</urlset>")
 
-    # Netlify 배포 폴더인 public 폴더에 저장
+    # public 폴더 아래 저장
     os.makedirs("public", exist_ok=True)
     file_name = "public/sitemap.xml"
     with open(file_name, "w", encoding="utf-8") as f:
         f.write("\n".join(xml_content))
 
-    print(f"🎉 샵, 동, 힐링 페이지를 모두 포함하여 총 {len(url_entries)}개의 URL이 public/sitemap.xml로 성공적으로 생성되었습니다!")
+    print(f"🎉 안산시 상록구를 포함하여 총 {len(url_entries)}개의 URL이 public/sitemap.xml로 생성되었습니다!")
 
 if __name__ == "__main__":
     generate_sitemap()
