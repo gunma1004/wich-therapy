@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 
 interface PageProps {
@@ -39,78 +39,53 @@ function parseLocationText(region: string, district: string): string {
   return `${regionName} ${decodedDistrict}`.replace(/\s+/g, " ").trim();
 }
 
-// 🌟 1. 수식어 200개 이상 풀 생성기 ('출장' 키워드 분산 포함)
-function getModifiersPool(): string[] {
-  const baseAdjectives = [
-    "프라이빗한", "전문적인", "쾌적한 공간의", "안락한 분위기 속", "정성 어린 손길의", 
-    "신뢰할 수 있는", "차분한 힐링", "품격 있는", "맞춤형 바디케어", "일상 회복을 위한",
-    "엄선된 제휴점의", "편안한 휴식을 선사하는", "체계적인 프로그램의", "도심 속 오아시스", "부드러운 릴렉싱",
-    "고품격 웰니스", "피로 회복 맞춤형", "안정감 있는", "조용하고 아늑한", "에너지 충전을 위한",
-    "릴렉싱 바디케어", "프리미엄 힐링", "상쾌한 활력을 주는", "정성 가득한", "지친 몸을 위한"
-  ];
-  
-  const intensityWords = [
-    "깊은", "부드러운", "섬세한", "꼼꼼한", "완벽한", 
-    "탁월한", "특별한", "차별화된", "노련한", "깔끔한"
-  ];
+// 🌟 [출장]과 [마사지]가 절대 붙지 않고 중간에 1개의 단어가 들어가도록 압축한 수식어 풀 (40개)
+const shopShortModifiers = [
+  '출장 전문 마사지', '출장 방문 마사지', '출장 릴렉스 마사지', '출장 맞춤 마사지', 
+  '출장 웰니스 마사지', '출장 케어 마사지', '출장 스웨디시 마사지', '출장 아로마 마사지', 
+  '출장 홈케어 마사지', '출장 스파 마사지', '출장 프리미엄 마사지', '출장 안심 마사지', 
+  '출장 신속 마사지', '출장 소프트 마사지', '출장 딥티슈 마사지', '출장 커스텀 마사지', 
+  '출장 스페셜 마사지', '출장 피로해소 마사지', '출장 실속형 마사지', '출장 쾌적한 마사지', 
+  '출장 종합 마사지', '출장 최고급 마사지', '출장 고품격 마사지', '출장 스마트 마사지', 
+  '출장 집중 마사지', '출장 테라피 마사지', '출장 감성 마사지', '출장 힐링 마사지',
+  '출장 바디 마사지', '출장 전신 마사지', '출장 정통 마사지', '출장 VIP 마사지',
+  '출장 럭셔리 마사지', '출장 오일 마사지', '출장 밸런스 마사지', '출장 리프레시 마사지',
+  '출장 클래식 마사지', '출장 시그니처 마사지', '출장 컴포트 마사지', '출장 디톡스 마사지'
+];
 
-  const pool: string[] = [];
-  for (const adj of baseAdjectives) {
-    for (const int of intensityWords) {
-      pool.push(`신속한 출장 서비스를 제공하는 ${int} ${adj}`);
-      pool.push(`편안한 출장 홈케어를 지향하는 ${int} ${adj}`);
-      pool.push(`고객 맞춤형 출장 케어를 선사하는 ${int} ${adj}`);
-    }
-  }
-  return pool; // 750개 이상 풀
-}
-
-// 🌟 2. 서비스 종류 100개 풀 생성기 ('마사지' 키워드 포함, '출장'과 분산됨)
-function getServiceTypesPool(): string[] {
-  const coreTechniques = ["스웨디시", "아로마", "타이", "스포츠", "힐링", "바디케어", "릴렉싱", "웰니스", "전문", "프리미엄"];
-  const styles = ["감성 마사지 코스", "맞춤형 마사지 프로그램", "전신 관리 마사지", "전문 테크닉 마사지", "집중 이완 마사지", "릴렉스 마사지 과정", "힐링 바디 마사지", "프리미엄 마사지 솔루션", "맞춤형 바디 마사지", "토탈 마사지 프로그램"];
-
-  const pool: string[] = [];
-  for (const tech of coreTechniques) {
-    for (const style of styles) {
-      pool.push(`${tech} 기반의 ${style}`);
-      pool.push(`${tech} 전문 ${style}`);
-    }
-  }
-  return pool; // 200개 이상 풀
-}
-
-// 🌟 3. 상세 설명 60개 이상 풀 생성기
-function getDescriptionsPool(): string[] {
-  const actions = [
-    "숙련된 테라피스트가 고객 계신 곳으로 직접 출장하여 진행하는 전문 마사지는", 
-    "엄선된 제휴 샵에서 출장 형태로 제공하는 맞춤형 마사지 프로그램은", 
-    "지친 일상 속에서 편안하게 불러보는 출장 힐링 마사지는", 
-    "안락한 공간에서 즐기는 전문적인 출장 테라피 마사지는", 
-    "체계적인 손길을 통해 출장 서비스로 제공되는 프라이빗 마사지는", 
-    "부드러운 테크닉이 돋보이는 릴렉스 중심의 출장 바디 마사지는"
-  ];
-  const effects = [
-    "몸과 마음의 피로를 부드럽게 씻어내 줍니다.",
-    "온전한 휴식과 재충전의 시간을 선사합니다.",
-    "지친 신체 리듬을 편안하게 되찾아드립니다.",
-    "일상의 스트레스를 말끔히 해소해 줍니다.",
-    "최상의 릴렉스와 안락함을 제공합니다.",
-    "몸의 긴장을 풀고 가벼운 활력을 채워줍니다.",
-    "오래도록 지속되는 편안한 안정감을 전해드립니다.",
-    "누적된 근육의 긴장을 개운하게 이완시켜 줍니다."
-  ];
-
-  const pool: string[] = [];
-  for (const act of actions) {
-    for (const eff of effects) {
-      pool.push(`${act} ${eff}`);
-      if (pool.length >= 80) break;
-    }
-    if (pool.length >= 80) break;
-  }
-  return pool;
-}
+// 🌟 상세 설명 풀 (30개)
+const shopDescriptions = [
+  '선입금 없는 100% 후불제 안전 시스템으로 편안한 휴식을 선사합니다.',
+  '검증된 전문 관리사와 함께 지친 피로를 안전하게 날려보세요.',
+  '품격 있는 1:1 맞춤 코스로 일상의 스트레스를 말끔히 해소해 드립니다.',
+  '정직한 정찰제와 신속한 방문 서비스로 안심하고 이용하실 수 있습니다.',
+  '향기로운 아로마와 부드러운 터치로 나만의 프라이빗한 힐링을 경험하세요.',
+  '이동의 불편함 없이 내 공간에서 누리는 럭셔리 힐링 타임.',
+  '숙련된 힐러들의 세심하고 정성스러운 손길로 묵은 피로를 풀어드립니다.',
+  '투명하고 정직한 요금 체계로 믿을 수 있는 프리미엄 서비스를 제공합니다.',
+  '지친 몸과 마음에 활력을 불어넣어 주는 맞춤형 웰니스 솔루션.',
+  '철저한 위생 관리와 고객 만족 중심의 고품격 케어를 만나보세요.',
+  '빠르고 친절한 매칭 시스템으로 언제 어디서나 편안한 휴식을 누리세요.',
+  '깊은 근육까지 시원하게 이완시켜 주는 전문 바디케어 서비스.',
+  '일상에 지친 당신을 위한 단 하나의 안심 힐링 프로그램.',
+  '체계적인 프로그램과 전문적인 터치로 최상의 만족도를 선사합니다.',
+  '편안하고 아늑한 분위기 속에서 즐기는 프라이빗 테라피.',
+  '불편한 곳을 정확하게 짚어주는 맞춤형 케어로 가벼운 몸을 되찾으세요.',
+  '스트레스와 피로를 한 번에 날려버리는 프리미엄 케어 솔루션.',
+  '엄선된 전문 관리사의 품격 있는 손길을 직접 경험해 보세요.',
+  '믿을 수 있는 안전한 후불 시스템으로 편안하게 즐기는 힐링.',
+  '지친 하루 끝에 찾아오는 완벽한 휴식과 안심 서비스를 만나보세요.',
+  '몸과 마음의 밸런스를 되찾아주는 체계적인 웰니스 프로그램.',
+  '부드러운 오일과 섬세한 터칭이 어우러져 깊은 안정감을 주는 케어.',
+  '현대인들의 만성적인 피로와 결림을 시원하게 해소해 주는 맞춤형 코스.',
+  '합리적인 비용으로 즐기는 오롯한 휴식과 힐링 테라피.',
+  '신뢰할 수 있는 운영 원칙을 바탕으로 안전하고 편안한 이용 보장.',
+  '지친 일상에 싱그러운 활력을 불어넣어 주는 산뜻한 웰니스 케어.',
+  '전문가의 손길로 전신 구석구석 묵은 피로를 말끔히 씻어내는 시간.',
+  '아늑하고 편안한 분위기 속에서 만나는 고품격 바디 릴렉스 솔루션.',
+  '깊은 이완을 통해 숙면과 컨디션 회복을 동시에 유도하는 맞춤 프로그램.',
+  '언제 어디서나 안심하고 이용할 수 있는 투명한 제휴 시스템 안내.'
+];
 
 // 💎 5개 제휴샵 데이터
 const shopData: Record<
@@ -242,28 +217,19 @@ const shopData: Record<
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const resolvedParams = await params;
   const { region, district, shopId } = resolvedParams;
-  const shop = shopData[shopId] || shopData["1"];
 
   const locationPrefix = parseLocationText(region, district);
 
-  const modifiersPool = getModifiersPool();
-  const serviceTypesPool = getServiceTypesPool();
-  const descriptionsPool = getDescriptionsPool();
-
-  const seedString = locationPrefix + shop.name + shopId + "chulsang_massage_clean_title";
+  // 🌟 순차적 인덱스 계산 (출장과 마사지 분리, 1,000개 이상 고유 조합 보장)
+  const seedString = `${locationPrefix}-${shopId}-short-district-shop-seo`;
   const charSum = seedString.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   
-  const modIndex = charSum % modifiersPool.length;
-  const serviceIndex = (charSum * 3) % serviceTypesPool.length;
-  const descIndex = (charSum * 7) % descriptionsPool.length;
+  const modIdx = charSum % shopShortModifiers.length;
+  const descIdx = (charSum * 7) % shopDescriptions.length;
 
-  const selectedModifier = modifiersPool[modIndex];
-  const selectedService = serviceTypesPool[serviceIndex];
-  const selectedDesc = descriptionsPool[descIndex];
-
-  // 🌟 뒤에 붙던 shop.name 및 브랜드명 수식어를 완전히 제거하고 조합된 타이틀만 노출
-  const formattedTitle = `${locationPrefix} ${selectedModifier} 제휴점의 ${selectedService}`;
-  const formattedDesc = `${locationPrefix} 지역 맞춤형 힐링 네트워크. ${selectedModifier} 진행되는 ${selectedService}. ${selectedDesc} (${shop.name})`;
+  // 💡 [지역] [출장 수식어 마사지] 형태로 25자 내외 압축 (도메인/상호명 배제)
+  const formattedTitle = `${locationPrefix} ${shopShortModifiers[modIdx]}`;
+  const formattedDesc = `${locationPrefix} 전문 홈케어 정보. ${shopDescriptions[descIdx]} 편안한 휴식을 누려보세요.`;
 
   return {
     metadataBase: new URL("https://wich-therapy.netlify.app"),
@@ -271,32 +237,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       absolute: formattedTitle,
     },
     description: formattedDesc,
-    keywords: [
-      `${locationPrefix} 타이 마사지`,
-      `${locationPrefix} 아로마 마사지`,
-      `${locationPrefix} 릴렉스 마사지`,
-      `${locationPrefix} 스웨디시 마사지`,
-      `${locationPrefix} 힐링 마사지`,
-      `${locationPrefix} 림프 마사지`,
-      `${locationPrefix} 전신 마사지`,
-      `${locationPrefix} 건식 마사지`,
-      `${locationPrefix} 오일 마사지`,
-      `${locationPrefix} 감성 마사지`,
-      `${locationPrefix} 딥티슈 마사지`,
-      `${locationPrefix} 웰니스 마사지`,
-      `${locationPrefix} 프라이빗 마사지`,
-      `${locationPrefix} 맞춤 마사지`,
-      `${locationPrefix} 출장 마사지`,
-      `${locationPrefix} 24시 마사지`,
-      "위치테라피"
-    ],
+    alternates: {
+      canonical: `https://wich-therapy.netlify.app/${region}/${encodeURIComponent(safeDecode(district))}/shop/${shopId}`,
+    },
     openGraph: {
       title: formattedTitle,
       description: formattedDesc,
       url: `https://wich-therapy.netlify.app/${region}/${encodeURIComponent(safeDecode(district))}/shop/${shopId}`,
-      siteName: "위치 테라피",
       locale: "ko_KR",
-      type: "website",
+      type: "article",
     },
   };
 }
@@ -307,7 +256,7 @@ export default async function DistrictShopDetailPage({ params }: PageProps) {
   const shop = shopData[shopId] || shopData["1"];
 
   const locationPrefix = parseLocationText(region, district);
-  const displayShopName = `${locationPrefix} 프리미엄 힐링 마사지 - ${shop.name}`;
+  const displayShopName = `${locationPrefix} 출장 방문 마사지 - ${shop.name}`;
 
   return (
     <div className="bg-[#050505] text-gray-100 min-h-screen flex flex-col font-sans selection:bg-amber-500 selection:text-black pb-24">
@@ -393,7 +342,7 @@ export default async function DistrictShopDetailPage({ params }: PageProps) {
             <span>📌</span> {locationPrefix} 웰니스 마사지 안심 이용 안내
           </h3>
           <ul className="text-xs text-gray-300 space-y-1.5 list-disc list-inside">
-            <li>위치 테라피 제휴 업체는 <strong>100% 현장 후불제</strong>로만 운영되며 사전 예약금이나 선입금을 절대 요구하지 않습니다.</li>
+            <li>모든 제휴 업체는 <strong>100% 현장 후불제</strong>로만 운영되며 사전 예약금이나 선입금을 절대 요구하지 않습니다.</li>
             <li>희망하시는 시간 여유 있게 문의 주시면 타이 마사지, 아로마 마사지, 스웨디시 전문 테라피스트가 신속하게 안내해 드립니다.</li>
           </ul>
         </section>
@@ -405,7 +354,7 @@ export default async function DistrictShopDetailPage({ params }: PageProps) {
           <a href={`tel:${shop.phone}`} className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-black py-3.5 rounded-2xl text-xs md:text-sm shadow-[0_0_15px_rgba(245,158,11,0.3)] active:scale-95 transition-transform">
             📞 전화로 즉시예약
           </a>
-          <a href={`sms:${shop.phone}?body=${encodeURIComponent(`[${locationPrefix}] ${shop.name} 마사지 예약 문의드립니다. (위치 테라피 보고 연락드렸어요)`)}`} className="flex items-center justify-center gap-2 bg-neutral-900 text-white font-black py-3.5 rounded-2xl text-xs md:text-sm border border-white/10 active:scale-95 transition-transform">
+          <a href={`sms:${shop.phone}?body=${encodeURIComponent(`[${locationPrefix}]${shop.name} 마사지 예약 문의드립니다.`)}`} className="flex items-center justify-center gap-2 bg-neutral-900 text-white font-black py-3.5 rounded-2xl text-xs md:text-sm border border-white/10 active:scale-95 transition-transform">
             💬 간편 문자상담
           </a>
         </div>
