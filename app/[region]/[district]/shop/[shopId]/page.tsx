@@ -9,6 +9,8 @@ interface PageProps {
   }>;
 }
 
+const SITE_URL = "https://wich-therapy.netlify.app";
+
 function getRegionFullName(region: string): string {
   switch (region.toLowerCase()) {
     case "seoul": return "서울";
@@ -30,61 +32,38 @@ function safeDecode(str: string): string {
       decoded = str;
     }
   }
-  return decoded.trim();
+  return decoded.replace(/(시|구|군)$/, "").trim();
 }
 
 function parseLocationText(region: string, district: string): string {
   const regionName = getRegionFullName(region);
   const decodedDistrict = safeDecode(district);
-  return `${regionName} ${decodedDistrict}`.replace(/\s+/g, " ").trim();
+  return `${regionName} ${decodedDistrict}구`.replace(/\s+/g, " ").trim();
 }
 
-// 🌟 [출장]과 [마사지]가 절대 붙지 않고 중간에 1개의 단어가 들어가도록 압축한 수식어 풀 (40개)
-const shopShortModifiers = [
-  '출장 전문 마사지', '출장 방문 마사지', '출장 릴렉스 마사지', '출장 맞춤 마사지', 
-  '출장 웰니스 마사지', '출장 케어 마사지', '출장 스웨디시 마사지', '출장 아로마 마사지', 
-  '출장 홈케어 마사지', '출장 스파 마사지', '출장 프리미엄 마사지', '출장 안심 마사지', 
-  '출장 신속 마사지', '출장 소프트 마사지', '출장 딥티슈 마사지', '출장 커스텀 마사지', 
-  '출장 스페셜 마사지', '출장 피로해소 마사지', '출장 실속형 마사지', '출장 쾌적한 마사지', 
-  '출장 종합 마사지', '출장 최고급 마사지', '출장 고품격 마사지', '출장 스마트 마사지', 
-  '출장 집중 마사지', '출장 테라피 마사지', '출장 감성 마사지', '출장 힐링 마사지',
-  '출장 바디 마사지', '출장 전신 마사지', '출장 정통 마사지', '출장 VIP 마사지',
-  '출장 럭셔리 마사지', '출장 오일 마사지', '출장 밸런스 마사지', '출장 리프레시 마사지',
-  '출장 클래식 마사지', '출장 시그니처 마사지', '출장 컴포트 마사지', '출장 디톡스 마사지'
+// 🌟 1단: '출장'과 '마사지'가 연달아 붙지 않는 수식어 패턴 풀
+const shopActionModifiers = [
+  '릴렉스 마사지·홈타이', '소프트스웨디시 마사지·홈타이', '아로마케어 마사지·홈타이',
+  '감성힐링 마사지·홈타이', '프리미엄 마사지·홈타이', '바디케어 마사지·홈타이',
+  '딥티슈이완 마사지·홈타이', '전신힐링 마사지·홈타이', '맞춤형케어 마사지·홈타이',
+  '안심방문 마사지·홈타이', 'VIP스웨디시 마사지·홈타이', '명품테라피 마사지·홈타이',
+  '소프트감성 마사지·홈타이', '림프순환 마사지·홈타이', '포근한힐링 마사지·홈타이',
+  '체형맞춤 마사지·홈타이', '타이스트레칭 마사지·홈타이', '스페셜바디 마사지·홈타이'
 ];
 
-// 🌟 상세 설명 풀 (30개)
-const shopDescriptions = [
-  '선입금 없는 100% 후불제 안전 시스템으로 편안한 휴식을 선사합니다.',
-  '검증된 전문 관리사와 함께 지친 피로를 안전하게 날려보세요.',
-  '품격 있는 1:1 맞춤 코스로 일상의 스트레스를 말끔히 해소해 드립니다.',
-  '정직한 정찰제와 신속한 방문 서비스로 안심하고 이용하실 수 있습니다.',
-  '향기로운 아로마와 부드러운 터치로 나만의 프라이빗한 힐링을 경험하세요.',
-  '이동의 불편함 없이 내 공간에서 누리는 럭셔리 힐링 타임.',
-  '숙련된 힐러들의 세심하고 정성스러운 손길로 묵은 피로를 풀어드립니다.',
-  '투명하고 정직한 요금 체계로 믿을 수 있는 프리미엄 서비스를 제공합니다.',
-  '지친 몸과 마음에 활력을 불어넣어 주는 맞춤형 웰니스 솔루션.',
-  '철저한 위생 관리와 고객 만족 중심의 고품격 케어를 만나보세요.',
-  '빠르고 친절한 매칭 시스템으로 언제 어디서나 편안한 휴식을 누리세요.',
-  '깊은 근육까지 시원하게 이완시켜 주는 전문 바디케어 서비스.',
-  '일상에 지친 당신을 위한 단 하나의 안심 힐링 프로그램.',
-  '체계적인 프로그램과 전문적인 터치로 최상의 만족도를 선사합니다.',
-  '편안하고 아늑한 분위기 속에서 즐기는 프라이빗 테라피.',
-  '불편한 곳을 정확하게 짚어주는 맞춤형 케어로 가벼운 몸을 되찾으세요.',
-  '스트레스와 피로를 한 번에 날려버리는 프리미엄 케어 솔루션.',
-  '엄선된 전문 관리사의 품격 있는 손길을 직접 경험해 보세요.',
-  '믿을 수 있는 안전한 후불 시스템으로 편안하게 즐기는 힐링.',
-  '지친 하루 끝에 찾아오는 완벽한 휴식과 안심 서비스를 만나보세요.',
-  '몸과 마음의 밸런스를 되찾아주는 체계적인 웰니스 프로그램.',
-  '부드러운 오일과 섬세한 터칭이 어우러져 깊은 안정감을 주는 케어.',
-  '현대인들의 만성적인 피로와 결림을 시원하게 해소해 주는 맞춤형 코스.',
-  '합리적인 비용으로 즐기는 오롯한 휴식과 힐링 테라피.',
-  '신뢰할 수 있는 운영 원칙을 바탕으로 안전하고 편안한 이용 보장.',
-  '지친 일상에 싱그러운 활력을 불어넣어 주는 산뜻한 웰니스 케어.',
-  '전문가의 손길로 전신 구석구석 묵은 피로를 말끔히 씻어내는 시간.',
-  '아늑하고 편안한 분위기 속에서 만나는 고품격 바디 릴렉스 솔루션.',
-  '깊은 이완을 통해 숙면과 컨디션 회복을 동시에 유도하는 맞춤 프로그램.',
-  '언제 어디서나 안심하고 이용할 수 있는 투명한 제휴 시스템 안내.'
+// 🌟 2단: 시 단위 연계 안마 예약 키워드 풀
+const cityBookingActions = [
+  '안마 예약', '안마 방문예약', '테라피 예약', '힐링 안마예약',
+  '바디케어 예약', '홈케어 예약', '방문 안마안내', '스웨디시 예약'
+];
+
+// 🌟 디스크립션 가격 및 소구점 조합 풀
+const priceHooks = [
+  '건식 6만원부터 심야할증 없이 방문합니다.',
+  '건식 7만원부터 심야할증 없이 방문합니다.',
+  '스웨디시 8만원부터 추가비용 없이 방문합니다.',
+  '아로마 7만원부터 합리적인 정찰제로 방문합니다.',
+  '타이 6만원부터 현장 결제 후불제로 방문합니다.'
 ];
 
 // 💎 5개 제휴샵 데이터
@@ -153,7 +132,7 @@ const shopData: Record<
     image: "/shop3.jpg",
     desc: "신속한 방문 보장과 정직한 정찰제 운영! 출장 타이 마사지 및 릴렉스 케어로 일상의 피로를 말끔히 비워내고 활력 넘치는 하루를 만들어 드립니다.",
     courses: [
-      { name: "타이 베이직 방문 케어", time: "60분", price: "60,000원", desc: "뻐근한 몸을 시원하게 스트레칭해 주는 기본 건식 방문 마사지" },
+      { name: "타이 베이직 방문 케어", time: "60분", price: "60,000원", desc: "뻐근한 몸을 시원하게 늘려주어 뻐근함을 풀어주는 기본 건식 방문 마사지" },
       { name: "타이 스탠다드 방문 테라피", time: "90분", price: "80,000원", desc: "근육 결을 따라 전신을 편안하게 이완시키는 타이 마사지 추천 코스" },
       { name: "타이 풀타임 방문 프로그램", time: "120분", price: "100,000원", desc: "답답했던 피로 부위를 꼼꼼하게 정돈하는 120분 전신 마사지 코스" },
       { name: "아로마 소프트 방문 케어", time: "60분", price: "70,000원", desc: "부드럽고 에센셜 오일 마사지와 정성스러운 손길의 순환 케어" },
@@ -165,7 +144,7 @@ const shopData: Record<
       { name: "VIP 맞춤 방문 마사지 (60분)", time: "60분", price: "100,000원", desc: "집중적인 피로 부위를 효율적으로 풀어주는 방문 스페셜 코스" },
       { name: "VIP 맞춤 방문 마사지 (90분)", time: "90분", price: "120,000원", desc: "체계적인 압 조절과 이완 기법의 고품격 방문 마사지 테라피" },
       { name: "VIP 맞춤 방문 마사지 (120분)", time: "120분", price: "140,000원", desc: "차별화된 안락함을 선사하는 최고급 맞춤 방문 마사지 케어" },
-      { name: "VIP 하이브리드 종합 방문 케어", time: "150분", price: "160,000원", desc: "타이 스트레칭, 아로마 마사지, 풋케어를 모두 담은 종합 패키지" },
+      { name: "VIP 하이브리드 종합 방문 케어", time: "150분", price: "160,000원", desc: "타이 스트레칭, 아로마 마사지, 풋케어의 올인원 패키지" },
       { name: "한국인 전문 힐러 방문 마사지 (60분)", time: "60분", price: "140,000원", desc: "실력파 한국인 관리사의 1:1 품격 있는 감성 스웨디시 마사지" },
       { name: "한국인 전문 힐러 방문 마사지 (90분)", time: "90분", price: "180,000원", desc: "극상의 만족감을 약속드리는 하이엔드 프리미엄 방문 마사지 코스" },
     ],
@@ -202,7 +181,7 @@ const shopData: Record<
     location: "수도권 실시간 방문",
     badge: "인기도 TOP 5",
     image: "/shop5.jpg",
-    desc: "골든 품격의 감성 릴렉싱! 출장 스웨디시 마사지와 전신 릴렉스 케어로 지친 일상에 편안한 쉼표를 찍어드립니다.",
+    desc: "골든 품격의 감성 릴렉싱! 출장 스웨디시 마사지와 전신 출장 릴렉스 케어로 지친 일상에 편안한 쉼표를 찍어드립니다.",
     courses: [
       { name: "골든 스웨디시 방문 케어 (60분)", time: "60분", price: "140,000원", desc: "부드럽고 감성적인 터치로 심신을 녹여주는 스웨디시 마사지 코스" },
       { name: "골든 스웨디시 방문 케어 (90분)", time: "90분", price: "190,000원", desc: "깊은 안정감과 활력을 불어넣는 90분 명품 스웨디시 마사지" },
@@ -218,32 +197,46 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const resolvedParams = await params;
   const { region, district, shopId } = resolvedParams;
 
+  const regionName = getRegionFullName(region);
+  const districtName = safeDecode(district);
   const locationPrefix = parseLocationText(region, district);
 
   // 🌟 순차적 인덱스 계산 (출장과 마사지 분리, 1,000개 이상 고유 조합 보장)
-  const seedString = `${locationPrefix}-${shopId}-short-district-shop-seo`;
+  const seedString = `${locationPrefix}-${shopId}-wich-district-shop-seo`;
   const charSum = seedString.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   
-  const modIdx = charSum % shopShortModifiers.length;
-  const descIdx = (charSum * 7) % shopDescriptions.length;
+  const part1Idx = charSum % shopActionModifiers.length;
+  const part2Idx = (charSum * 3) % cityBookingActions.length;
+  const priceIdx = (charSum * 7) % priceHooks.length;
 
-  // 💡 [지역] [출장 수식어 마사지] 형태로 25자 내외 압축 (도메인/상호명 배제)
-  const formattedTitle = `${locationPrefix} ${shopShortModifiers[modIdx]}`;
-  const formattedDesc = `${locationPrefix} 전문 홈케어 정보. ${shopDescriptions[descIdx]} 편안한 휴식을 누려보세요.`;
+  // 💡 [강서구 출장 릴렉스 마사지·홈타이 | 서울 안마 예약 | 위치테라피] 형식 (약 45~50자)
+  const formattedTitle = `${districtName}구 출장 ${shopActionModifiers[part1Idx]} | ${regionName} ${cityBookingActions[part2Idx]} | 위치테라피`;
+  
+  // 💡 [서울 강서구 출장 마사지·홈타이·안마. 검증된 전문 관리사 100% 후불제. 건식 7만원부터 심야할증 없이 방문합니다.] 형식
+  const formattedDesc = `${locationPrefix} 출장 마사지·홈타이·안마. 검증된 전문 관리사 100% 후불제. ${priceHooks[priceIdx]}`;
 
   return {
-    metadataBase: new URL("https://wich-therapy.netlify.app"),
+    metadataBase: new URL(SITE_URL),
     title: {
       absolute: formattedTitle,
     },
     description: formattedDesc,
     alternates: {
-      canonical: `https://wich-therapy.netlify.app/${region}/${encodeURIComponent(safeDecode(district))}/shop/${shopId}`,
+      canonical: `${SITE_URL}/${region}/${encodeURIComponent(safeDecode(district))}/shop/${shopId}`,
     },
+    keywords: [
+      `${locationPrefix} 마사지`,
+      `${districtName}구 출장마사지`,
+      `${districtName}구 홈타이`,
+      `${regionName} 안마`,
+      `${locationPrefix} 아로마마사지`,
+      `${locationPrefix} 스웨디시`,
+      "위치테라피"
+    ],
     openGraph: {
       title: formattedTitle,
       description: formattedDesc,
-      url: `https://wich-therapy.netlify.app/${region}/${encodeURIComponent(safeDecode(district))}/shop/${shopId}`,
+      url: `${SITE_URL}/${region}/${encodeURIComponent(safeDecode(district))}/shop/${shopId}`,
       locale: "ko_KR",
       type: "article",
     },

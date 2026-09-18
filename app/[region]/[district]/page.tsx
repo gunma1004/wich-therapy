@@ -11,6 +11,8 @@ interface PageProps {
   }>;
 }
 
+const SITE_URL = "https://wich-therapy.netlify.app";
+
 function getRegionKoreanName(region: string): string {
   switch (region.toLowerCase()) {
     case "seoul": return "서울";
@@ -35,32 +37,36 @@ function safeDecode(str: string): string {
   return decoded.trim();
 }
 
-// 🌟 출장을 완전히 배제한 순수 마사지 수식어 풀 (간결하고 임팩트 있는 형태, 40개)
-const regionModifiers = [
-  '전문 힐링 마사지', '프라이빗 맞춤 마사지', '웰니스 바디 마사지', '스웨디시 감성 마사지',
-  '아로마 오일 마사지', '럭셔리 스파 마사지', 'VIP 프리미엄 마사지', '소프트 릴렉스 마사지',
-  '딥티슈 바디 마사지', '스페셜 힐링 마사지', '피로회복 전신 마사지', '맞춤형 스웨디시 마사지',
-  '실속형 바디 마사지', '종합 웰니스 마사지', '최고급 감성 마사지', '전문 바디케어 마사지',
-  '맞춤 테라피 마사지', '1:1 프라이빗 마사지', '정통 스웨디시 마사지', '스페셜 아로마 마사지',
-  '시원한 전신 마사지', '편안한 릴렉스 마사지', '고품격 테라피 마사지', '전문 아로마 마사지',
-  '스웨디시 테라피 마사지', '딥티슈 힐링 마사지', '웰니스 스파 마사지', '정통 바디 마사지',
-  '쾌적한 힐링 마사지', '종합 테라피 마사지', '최고급 바디 마사지', '전문 릴렉싱 마사지',
-  '동네 안심 마사지', '우리동네 맞춤 마사지', '편안한 쉼 마사지', '활력 충전 마사지',
-  '근육이완 힐링 마사지', '바디 밸런스 마사지', '토탈 리프레시 마사지', '데일리 케어 마사지'
+// 🌟 1단: '출장'을 배제한 지역 메인 복합 코스 패턴 풀 (18개)
+const primaryServicePatterns = [
+  '릴렉스 마사지·홈타이', '소프트스웨디시 마사지·홈타이', '아로마케어 마사지·홈타이',
+  '감성힐링 마사지·홈타이', '프리미엄 마사지·홈타이', '바디케어 마사지·홈타이',
+  '딥티슈이완 마사지·홈타이', '전신힐링 마사지·홈타이', '맞춤형케어 마사지·홈타이',
+  '안심방문 마사지·홈타이', 'VIP스웨디시 마사지·홈타이', '명품테라피 마사지·홈타이',
+  '소프트감성 마사지·홈타이', '림프순환 마사지·홈타이', '포근한힐링 마사지·홈타이',
+  '체형맞춤 마사지·홈타이', '타이스트레칭 마사지·홈타이', '스페셜바디 마사지·홈타이'
 ];
 
-// 🌟 상세 설명 풀 (30개)
-const regionDescriptions = [
-  '선입금 없는 안전한 시스템과 투명한 정찰제로 편안한 휴식을 선사합니다.',
-  '검증된 전문 샵 정보와 체계적인 프로그램으로 지친 피로를 풀어드립니다.',
-  '엄선된 전문 관리사의 섬세한 손길로 최상의 마사지 힐링을 누려보세요.',
-  '향기로운 아로마와 부드러운 터치로 나만의 프라이빗한 휴식을 선사합니다.',
-  '일상에 지친 몸과 마음에 활력을 불어넣어 주는 맞춤형 테라피 안내.',
-  '깊은 근육까지 시원하게 이완시켜 주는 전문 바디케어 서비스를 만나보세요.',
-  '철저한 위생 관리와 고객 만족 중심의 고품격 프로그램을 제공합니다.',
-  '빠르고 편리한 정보 확인으로 언제 어디서나 편안한 휴식을 누리세요.',
-  '부드러운 오일과 정성 어린 터칭으로 깊은 안정감을 드립니다.',
-  '피로와 스트레스를 말끔히 해소해 주는 프리미엄 바디 릴렉스 가이드.'
+// 🌟 2단: 구/시 단위 연계 안마 예약/안내 패턴 풀 (8개)
+const districtBookingActions = [
+  '안마 예약', '실시간 안마 방문예약', '테라피 코스 예약', '힐링 안마예약',
+  '바디케어 추천예약', '웰니스 안마 안내', '동별 안마 방문안내', '스웨디시 통합예약'
+];
+
+// 🌟 3단: 지역 안내 페이지 전용 소구 키워드 풀 (브랜드명 대신 배치하여 스팸 필터링 방지)
+const tertiaryActionPatterns = [
+  '1:1 맞춤 방문케어', '프라이빗 힐링 안내', '전신 피로회복 총정리',
+  '정직한 정찰제 안심 가이드', '당일 예약 맞춤 코스', '최고급 힐러진 프로그램',
+  '안심 후불제 웰니스 안내', '전신 릴렉스 힐링 추천'
+];
+
+// 🌟 디스크립션 가격 및 소구점 조합 풀
+const priceHooks = [
+  '건식 6만원부터 심야할증 없이 방문합니다.',
+  '건식 7만원부터 심야할증 없이 방문합니다.',
+  '스웨디시 8만원부터 추가비용 없이 방문합니다.',
+  '아로마 7만원부터 합리적인 정찰제로 방문합니다.',
+  '타이 6만원부터 현장 결제 후불제로 방문합니다.'
 ];
 
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
@@ -73,31 +79,46 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   const dongName = resolvedSearchParams.dong ? safeDecode(resolvedSearchParams.dong) : "";
 
   const locationKeyword = `${regionName} ${districtName} ${dongName}`.trim();
+  const parentDistrict = districtName || regionName;
+  const targetLocation = dongName || districtName;
 
   // 🌟 순차적 인덱스 계산 (출장 배제, 1,000개 이상 문서 고유 조합 보장)
-  const seedString = `${locationKeyword}-pure-region-short-seo`;
+  const seedString = `${locationKeyword}-wich-regional-careplace-style-seo`;
   const charSum = seedString.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   
-  const modIdx = charSum % regionModifiers.length;
-  const descIdx = (charSum * 7) % regionDescriptions.length;
+  const part1Idx = charSum % primaryServicePatterns.length;
+  const part2Idx = (charSum * 3) % districtBookingActions.length;
+  const part3Idx = (charSum * 5) % tertiaryActionPatterns.length;
+  const priceIdx = (charSum * 7) % priceHooks.length;
 
-  // 💡 [지역] [수식어 마사지] 형태로 25자 내외 압축 (도메인/상호명 배제)
-  const finalTitle = `${locationKeyword} ${regionModifiers[modIdx]}`;
-  const finalDescription = `${locationKeyword} 마사지 샵 정보. ${regionDescriptions[descIdx]}`;
+  // 💡 [지역] [1단 마사지·홈타이] | [구 안마 예약] | [3단 소구점] 구조 (약 45~50자)
+  const finalTitle = `${targetLocation} ${primaryServicePatterns[part1Idx]} | ${parentDistrict} ${districtBookingActions[part2Idx]} | ${tertiaryActionPatterns[part3Idx]}`;
+  
+  // 💡 [서울 강서구 가양동 마사지·홈타이·안마. 검증된 전문 관리사 100% 후불제. 건식 7만원부터 심야할증 없이 방문합니다.] 구조
+  const finalDescription = `${locationKeyword} 마사지·홈타이·안마. 검증된 전문 관리사 100% 후불제. ${priceHooks[priceIdx]}`;
 
   return {
-    metadataBase: new URL("https://wich-therapy.netlify.app"),
+    metadataBase: new URL(SITE_URL),
     title: {
       absolute: finalTitle,
     },
     description: finalDescription,
     alternates: {
-      canonical: `https://wich-therapy.netlify.app/${region}/${encodeURIComponent(districtName)}${dongName ? `?dong=${encodeURIComponent(dongName)}` : ""}`,
+      canonical: `${SITE_URL}/${region}/${encodeURIComponent(districtName)}${dongName ? `?dong=${encodeURIComponent(dongName)}` : ""}`,
     },
+    keywords: [
+      `${locationKeyword} 마사지`,
+      `${targetLocation} 홈타이`,
+      `${targetLocation} 스웨디시`,
+      `${parentDistrict} 안마`,
+      `${locationKeyword} 아로마마사지`,
+      `${locationKeyword} 타이마사지`,
+      "방문케어"
+    ],
     openGraph: {
       title: finalTitle,
       description: finalDescription,
-      url: `https://wich-therapy.netlify.app/${region}/${encodeURIComponent(districtName)}${dongName ? `?dong=${encodeURIComponent(dongName)}` : ""}`,
+      url: `${SITE_URL}/${region}/${encodeURIComponent(districtName)}${dongName ? `?dong=${encodeURIComponent(dongName)}` : ""}`,
       locale: "ko_KR",
       type: "website",
     },
